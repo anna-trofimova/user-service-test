@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as userService from "../services/user.service";
 import { generateToken } from "../utils/jwt";
 import bcrypt from "bcrypt";
+import { AuthRequest } from "../middleware/auth.middleware";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -33,3 +34,17 @@ export const login = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Login error" });
   }
 };
+
+export const getUser = async (req: AuthRequest, res: Response) => {
+  const id = Number(req.params.id);
+
+  // Check admin or user
+  if (req.user.role !== "admin" && req.user.userId !== id) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
+  const user = await userService.getUserById(id);
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  res.json(user);
+}
