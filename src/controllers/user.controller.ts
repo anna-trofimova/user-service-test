@@ -3,6 +3,7 @@ import * as userService from "../services/user.service";
 import { generateToken } from "../utils/jwt";
 import bcrypt from "bcrypt";
 import { AuthRequest } from "../middleware/auth.middleware";
+import { adminOnly } from "../middleware/role.middleware";
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -48,3 +49,19 @@ export const getUser = async (req: AuthRequest, res: Response) => {
 
   res.json(user);
 }
+
+export const listUsers = async (req: any, res: Response) => {
+  const users = await userService.getUsers(); //
+  res.json(users);
+};
+
+export const blockUserController = async (req: any, res: Response) => {
+  const id = Number(req.params.id);
+
+  if (req.user.role !== "admin" && req.user.userId !== id) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
+  const user = await userService.blockUser(id); //
+  res.json(user);
+};

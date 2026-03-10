@@ -26,3 +26,14 @@ export const findUserByEmail = async (email: string) => {
 export const getUserById = async (id: number) => {
   return prisma.user.findUnique({ where: { id } });
 };
+
+export const getUsers = async () => {
+  return prisma.user.findMany();
+};
+
+export const blockUser = async (id: number) => {
+  return prisma.user.update({
+    where: { id },
+    data: { isActive: false },
+  });
+};
